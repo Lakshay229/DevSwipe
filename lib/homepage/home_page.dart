@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:devswipe/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,10 +15,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String error = '';
+  List projects = [];
 
   @override
   void initState() {
     super.initState();
+    fetchData();
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -22,6 +29,37 @@ class _HomePageState extends State<HomePage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchData() async {
+    const String url = "$api/projects/get-projects";
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": authToken,
+          "x-api-key": apiKey
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(data);
+        setState(() {
+          projects = data;
+        });
+        print(projects[0]["images"][0]);
+      } else {
+        setState(() {
+          projects = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = "Error: $e";
+      });
+    }
   }
 
   @override
@@ -88,89 +126,108 @@ class _HomePageState extends State<HomePage>
                 children: [
                   CardSwiper(
                     controller: controller,
-                    cardsCount: 3,
+                    cardsCount: 2,
                     backCardOffset: const Offset(20, 20),
                     padding: EdgeInsets.symmetric(
                       horizontal: width * 0.05,
                       vertical: height * 0.1,
                     ),
-                    cardBuilder: (
-                      context,
-                      index,
-                      horizontalThresholdPercentage,
-                      verticalThresholdPercentage,
-                    ) =>
-                        Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            image: const DecorationImage(
-                              image: AssetImage("assets/image.png"),
-                              fit: BoxFit.cover,
+                    cardBuilder: (context, index, horizontalThresholdPercentage,
+                        verticalThresholdPercentage) {
+                      if (projects.isEmpty) {
+                        // Placeholder card when there are no projects
+                        return Center(
+                          child: Text(
+                            'No Projects Available',
+                            style: TextStyle(
+                              fontSize: width / 15,
+                              color: Colors.white,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        Positioned(
-                          bottom: width / 4,
-                          left: width / 20,
-                          child: Stack(
-                            children: [
-                              Text(
-                                "Meow Meow Meow",
-                                style: TextStyle(
-                                  fontSize: width / 8,
-                                  foreground: Paint()
-                                    ..style = PaintingStyle.stroke
-                                    ..strokeWidth = 3
-                                    ..color = Colors.black,
+                        );
+                      } else {
+                        return Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    projects[index]["images"][0],
+                                  ),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              Text(
-                                "Meow Meow Meow",
-                                style: TextStyle(
-                                  fontSize: width / 8,
-                                  color: Colors.white,
-                                ),
+                            ),
+                            Positioned(
+                              bottom: width / 4,
+                              left: width / 20,
+                              child: Stack(
+                                children: [
+                                  Text(
+                                    "Meow Meow Meow",
+                                    style: TextStyle(
+                                      fontSize: width / 8,
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = 3
+                                        ..color = Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Meow Meow Meow",
+                                    style: TextStyle(
+                                      fontSize: width / 8,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          bottom: width / 5,
-                          left: width / 20,
-                          child: Stack(
-                            children: [
-                              Text(
-                                "Some Random Dev",
-                                style: TextStyle(
-                                  fontSize: width / 13,
-                                  foreground: Paint()
-                                    ..style = PaintingStyle.stroke
-                                    ..strokeWidth = 3
-                                    ..color = Colors.black,
-                                ),
+                            ),
+                            Positioned(
+                              bottom: width / 5,
+                              left: width / 20,
+                              child: Stack(
+                                children: [
+                                  Text(
+                                    "Some Random Dev",
+                                    style: TextStyle(
+                                      fontSize: width / 13,
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = 3
+                                        ..color = Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Some Random Dev",
+                                    style: TextStyle(
+                                      fontSize: width / 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                "Some Random Dev",
-                                style: TextStyle(
-                                  fontSize: width / 13,
-                                  color: Colors.white,
-                                ),
+                            ),
+                            Positioned(
+                              bottom: width / 20,
+                              left: width / 40,
+                              child: techCardsRow(
+                                width,
+                                [
+                                  "Flutter",
+                                  "Dart",
+                                  "React",
+                                  "Node.js",
+                                  "Python"
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          bottom: width / 20,
-                          left: width / 40,
-                          child: techCardsRow(
-                            width,
-                            ["Flutter", "Dart", "React", "Node.js", "Python"],
-                          ),
-                        ),
-                      ],
-                    ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
                   Positioned(
                     top: height * 0.02, // Adjust positioning as needed
