@@ -1,4 +1,5 @@
 import 'package:devswipe/Sign_in_pages/register_page.dart';
+import 'package:devswipe/homepage/home_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -63,6 +64,14 @@ class _LoginPageState extends State<LoginPage> {
 
   GestureDetector loginButton(double width) {
     return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      },
       child: Container(
         margin: EdgeInsets.only(
           top: width / 20,
