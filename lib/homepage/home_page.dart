@@ -181,6 +181,71 @@ class _HomePageState extends State<HomePage>
                       ["Web", "Mobile", "AI", "Blockchain", "Game Dev"],
                     ),
                   ),
+                  Positioned(
+                    bottom: height * 0.02,
+                    left: width * 0.3,
+                    right: width * 0.3,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          vertical: width / 25,
+                          horizontal: width / 10,
+                        ),
+                      ),
+                      onPressed: () {
+                        // Action for the "Show More" button
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.grey[850],
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "More Details",
+                                      style: TextStyle(
+                                        fontSize: width / 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      "Here you can add more details about the project or developer. Customize this as per your requirementsHere you can add more details about the project or developer. Customize this as per your requirementsHere you can add more details about the project or developer. Customize this as per your requirements.Here you can add more details about the project or developer. Customize this as per your requirementsHere you can add more details about the project or developer. Customize this as per your requirementsHere you can add more details about the project or developer. Customize this as per your requirementsHere you can add more details about the project or developer. Customize this as per your requirements",
+                                      style: TextStyle(
+                                        fontSize: width / 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        "Show More",
+                        style: TextStyle(
+                          fontSize: width / 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
