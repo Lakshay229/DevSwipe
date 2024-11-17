@@ -83,6 +83,10 @@ flutter:
       fonts:
         - asset: fonts/pixeboy/Pixeboy.ttf
           weight: 700
+    - family: Sometype_Mono
+      fonts:
+        - asset: fonts/Sometype_Mono/SometypeMono-VariableFont_wght.ttf
+          weight: 400
 
   #
   # For details regarding fonts from package dependencies,

@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         home: Consumer<ProviderService>(
           builder: (context, providerService, child) {
             if (providerService.isLoading) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (providerService.error.isNotEmpty) {
               return Center(child: Text('Error: ${providerService.error}'));
             } else {

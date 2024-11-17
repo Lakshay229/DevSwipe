@@ -36,7 +36,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['_id'] ?? '',
-      username: json['username'] ?? '', // Provide default empty string if null
+      username: json['username'] ?? '', 
       email: json['email'] ?? '', // Provide default empty string if null
       password: json['password'] ?? '', // Provide default empty string if null
       college: json['college'] ?? '', // Default to empty string if null
