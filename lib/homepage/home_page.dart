@@ -1,12 +1,18 @@
 import 'dart:convert';
 
 import 'package:devswipe/const.dart';
+import 'package:devswipe/models/user_model.dart';
+import 'package:devswipe/profile_page/profile_page.dart';
+import 'package:devswipe/services/provider_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  UserModel user;
+  HomePage({super.key, required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -15,13 +21,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
   String error = '';
   List projects = [];
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchProjects();
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -31,7 +38,7 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchProjects() async {
     const String url = "$api/projects/get-projects";
     try {
       final response = await http.get(
@@ -67,53 +74,15 @@ class _HomePageState extends State<HomePage>
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
+    final provider = Provider.of<ProviderService>(context);
+    provider.getUser();
+    final UserModel userData = provider.user!;
+
     final CardSwiperController controller = CardSwiperController();
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(36, 35, 35, 1),
-          leading: Padding(
-            padding: EdgeInsets.only(left: width / 40),
-            child: Icon(
-              Icons.person,
-              size: width / 8,
-              color: Colors.white,
-            ),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(width: width / 7),
-              Image.asset(
-                "assets/devswipe_logo.png",
-                width: width / 5,
-                height: width / 5,
-              ),
-              Row(
-                children: [
-                  coinContainer(width, "assets/Capa_1.png", "22"),
-                  coinContainer(width, "assets/Capa_2.png", "22"),
-                ],
-              ),
-            ],
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: Colors.transparent,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.grey,
-            labelStyle: TextStyle(
-              fontSize: width / 17,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Pixeboy',
-            ),
-            tabs: const [
-              Tab(text: "Projects"),
-              Tab(text: "Developers"),
-            ],
-          ),
-        ),
+        appBar: appBar(width, userData),
         body: PageView(
           controller: _tabController.index == 0
               ? PageController(initialPage: 0)
@@ -135,7 +104,6 @@ class _HomePageState extends State<HomePage>
                     cardBuilder: (context, index, horizontalThresholdPercentage,
                         verticalThresholdPercentage) {
                       if (projects.isEmpty) {
-                        // Placeholder card when there are no projects
                         return Center(
                           child: Text(
                             'No Projects Available',
@@ -166,7 +134,7 @@ class _HomePageState extends State<HomePage>
                               child: Stack(
                                 children: [
                                   Text(
-                                    "Meow Meow Meow",
+                                    projects[index]["name"],
                                     style: TextStyle(
                                       fontSize: width / 8,
                                       foreground: Paint()
@@ -176,7 +144,7 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
                                   Text(
-                                    "Meow Meow Meow",
+                                    projects[index]["name"],
                                     style: TextStyle(
                                       fontSize: width / 8,
                                       color: Colors.white,
@@ -191,7 +159,7 @@ class _HomePageState extends State<HomePage>
                               child: Stack(
                                 children: [
                                   Text(
-                                    "Some Random Dev",
+                                    projects[index]["owner_name"],
                                     style: TextStyle(
                                       fontSize: width / 13,
                                       foreground: Paint()
@@ -201,7 +169,7 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
                                   Text(
-                                    "Some Random Dev",
+                                    projects[index]["owner_name"],
                                     style: TextStyle(
                                       fontSize: width / 13,
                                       color: Colors.white,
@@ -215,13 +183,7 @@ class _HomePageState extends State<HomePage>
                               left: width / 40,
                               child: techCardsRow(
                                 width,
-                                [
-                                  "Flutter",
-                                  "Dart",
-                                  "React",
-                                  "Node.js",
-                                  "Python"
-                                ],
+                                projects[index]["techUsed"]["languages"],
                               ),
                             ),
                           ],
@@ -230,12 +192,15 @@ class _HomePageState extends State<HomePage>
                     },
                   ),
                   Positioned(
-                    top: height * 0.02, // Adjust positioning as needed
+                    top: height * 0.02,
                     left: width * 0.05,
                     right: width * 0.05,
                     child: projectCategoriesRow(
                       width,
-                      ["Web", "Mobile", "AI", "Blockchain", "Game Dev"],
+                      List<String>.from(
+                        // projects[0]["categories"],
+                        ["Web", "App", "node.js", "React js", "mongodb"],
+                      ),
                     ),
                   ),
                   Positioned(
@@ -315,6 +280,62 @@ class _HomePageState extends State<HomePage>
           ],
         ),
         backgroundColor: const Color.fromRGBO(36, 35, 35, 1),
+      ),
+    );
+  }
+
+  AppBar appBar(double width, UserModel userData) {
+    return AppBar(
+      backgroundColor: const Color.fromRGBO(36, 35, 35, 1),
+      leading: Padding(
+        padding: EdgeInsets.only(left: width / 40),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfilePage(),
+              ),
+            );
+          },
+          child: CircleAvatar(
+            backgroundImage: NetworkImage(userData.profilePicture),
+          ),
+        ),
+      ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(width: width / 7),
+          Image.asset(
+            "assets/devswipe_logo.png",
+            width: width / 5,
+            height: width / 5,
+          ),
+          Row(
+            children: [
+              coinContainer(width, "assets/Capa_1.png",
+                  userData.coins.powerCoins.toString()),
+              coinContainer(width, "assets/Capa_2.png",
+                  userData.coins.achievementCoins.toString()),
+            ],
+          ),
+        ],
+      ),
+      bottom: TabBar(
+        controller: _tabController,
+        indicatorColor: Colors.transparent,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey,
+        labelStyle: TextStyle(
+          fontSize: width / 17,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Pixeboy',
+        ),
+        tabs: const [
+          Tab(text: "Projects"),
+          Tab(text: "Developers"),
+        ],
       ),
     );
   }
@@ -408,9 +429,9 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget techCardsRow(double width, List<String> techs) {
+  Widget techCardsRow(double width, List<dynamic> techs) {
     double cardWidth = width / 5;
-    double availableWidth = width - (2 * width / 20); // Padding
+    double availableWidth = width - (2 * width / 20);
     int maxCards = (availableWidth ~/ cardWidth);
     bool overflow = techs.length > maxCards;
 
@@ -523,11 +544,12 @@ class _HomePageState extends State<HomePage>
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Image.asset(
             imgPath,
-            width: width / 10,
-            height: width / 10,
+            width: width / 20,
+            height: width / 20,
           ),
           Text(
             coinsCount,

@@ -38,6 +38,7 @@ dependencies:
   dotted_border: ^2.1.0
   flutter_card_swiper: ^7.0.2
   http: ^1.2.2
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

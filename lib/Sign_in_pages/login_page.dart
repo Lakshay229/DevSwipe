@@ -1,6 +1,8 @@
 import 'package:devswipe/Sign_in_pages/register_page.dart';
 import 'package:devswipe/homepage/home_page.dart';
+import 'package:devswipe/services/provider_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +14,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
+    Provider.of<ProviderService>(context).getUser();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return SafeArea(
@@ -68,7 +71,9 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomePage(),
+            builder: (context) => HomePage(
+              user: Provider.of<ProviderService>(context).user!,
+            ),
           ),
         );
       },
